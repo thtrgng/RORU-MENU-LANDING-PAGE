@@ -48,7 +48,6 @@
       height: 96px;
       border-radius: 50%;
       background: #1a1a1a;
-      border: 2.5px solid #e8534a;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -79,15 +78,6 @@
       letter-spacing: 2px;
       text-transform: uppercase;
       color: rgba(240,237,232,0.5);
-      margin-bottom: 6px;
-    }
-
-    .profile-slogan {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: #e8534a;
       margin-bottom: 40px;
     }
 
@@ -143,22 +133,6 @@
       transform: scale(0.984);
     }
 
-    .btn-num {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: rgba(232,83,74,0.15);
-      border: 1px solid rgba(232,83,74,0.35);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      font-weight: 600;
-      color: #e8534a;
-      flex-shrink: 0;
-      letter-spacing: 0;
-    }
-
     .btn-label {
       flex: 1;
     }
@@ -172,19 +146,6 @@
     .link-btn:hover .btn-arrow {
       transform: translateX(3px);
       color: rgba(240,237,232,0.6);
-    }
-
-    /* ── Footer ───────────────────────────────────────── */
-    .footer {
-      margin-top: 48px;
-      text-align: center;
-    }
-
-    .footer p {
-      font-size: 10px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: rgba(240,237,232,0.2);
     }
 
     /* ── Backdrop ─────────────────────────────────────── */
@@ -222,21 +183,6 @@
 
     .sheet.open {
       transform: translateY(0);
-    }
-
-    .sheet-handle-wrap {
-      padding: 12px 0 4px;
-      display: flex;
-      justify-content: center;
-      flex-shrink: 0;
-      cursor: grab;
-    }
-
-    .sheet-handle {
-      width: 36px;
-      height: 4px;
-      border-radius: 2px;
-      background: rgba(240,237,232,0.2);
     }
 
     .sheet-header {
@@ -362,38 +308,27 @@
     </div>
     <h1 class="profile-name">RORU</h1>
     <p class="profile-sub">Modern Japanese Restaurant</p>
-    <p class="profile-slogan">One Time, One Roll</p>
-
     <div class="links">
       <button class="link-btn" data-menu="omakase">
-        <span class="btn-num">01</span>
         <span class="btn-label">Omakase Spring Summer 2026</span>
         <span class="btn-arrow">›</span>
       </button>
       <button class="link-btn" data-menu="alacarte">
-        <span class="btn-num">02</span>
         <span class="btn-label">A La Carte Menu</span>
         <span class="btn-arrow">›</span>
       </button>
       <button class="link-btn" data-menu="drinks">
-        <span class="btn-num">03</span>
         <span class="btn-label">Drinks Menu</span>
         <span class="btn-arrow">›</span>
       </button>
     </div>
 
-    <footer class="footer">
-      <p>Price excludes 5% service charge &amp; government taxes</p>
-    </footer>
   </main>
 
   <div class="backdrop" id="backdrop"></div>
 
   <div class="sheet" id="sheet">
-    <div class="sheet-handle-wrap" id="sheetHandle">
-      <div class="sheet-handle"></div>
-    </div>
-    <div class="sheet-header">
+    <div class="sheet-header" id="sheetHeader">
       <span class="sheet-title" id="sheetTitle"></span>
       <button class="sheet-close" id="sheetClose">&#215;</button>
     </div>
@@ -432,7 +367,7 @@
     const dotsEl    = document.getElementById('sheetDots');
     const titleEl   = document.getElementById('sheetTitle');
     const closeBtn  = document.getElementById('sheetClose');
-    const handleEl  = document.getElementById('sheetHandle');
+    const headerEl  = document.getElementById('sheetHeader');
 
     let cur = { key: null, idx: 0, pages: [] };
     let isOpen = false;
@@ -567,11 +502,11 @@
     // ── Drag sheet down to dismiss ─────────────────────────
     let sheetDrag = null;
 
-    handleEl.addEventListener('touchstart', e => {
+    headerEl.addEventListener('touchstart', e => {
       sheetDrag = { y: e.touches[0].clientY, dismissed: false };
     }, { passive: true });
 
-    handleEl.addEventListener('touchmove', e => {
+    headerEl.addEventListener('touchmove', e => {
       if (!sheetDrag) return;
       const dy = e.touches[0].clientY - sheetDrag.y;
       if (dy > 0) {
@@ -580,7 +515,7 @@
       }
     }, { passive: true });
 
-    handleEl.addEventListener('touchend', e => {
+    headerEl.addEventListener('touchend', e => {
       if (!sheetDrag) return;
       const dy = e.changedTouches[0].clientY - sheetDrag.y;
       sheet.style.transition = '';
