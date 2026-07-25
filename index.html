@@ -164,15 +164,27 @@
       background: #111;
       border-radius: 20px 20px 0 0;
       transform: translateY(100%);
-      transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1);
       max-height: 92svh;
       display: flex;
       flex-direction: column;
       will-change: transform;
+      transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1),
+                  height 0.34s cubic-bezier(0.32, 0.72, 0, 1),
+                  left 0.34s cubic-bezier(0.32, 0.72, 0, 1),
+                  right 0.34s cubic-bezier(0.32, 0.72, 0, 1),
+                  border-radius 0.3s ease;
     }
 
     .sheet.open {
       transform: translateY(0);
+    }
+
+    .sheet.expanded {
+      height: 100svh;
+      max-height: 100svh;
+      border-radius: 0;
+      left: 0;
+      right: 0;
     }
 
     .sheet-header {
@@ -209,6 +221,41 @@
     }
 
     .sheet-close:active { background: rgba(255,255,255,0.15); }
+
+    .sheet-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sheet-expand {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      border: none;
+      color: rgba(240,237,232,0.6);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      transition: background 0.15s;
+    }
+
+    .sheet-expand:active { background: rgba(255,255,255,0.15); }
+
+    .sheet-expand .ic {
+      width: 15px;
+      height: 15px;
+      display: none;
+    }
+
+    .sheet-expand .ic-expand { display: block; }
+    .sheet.expanded .sheet-expand .ic-expand { display: none; }
+    .sheet.expanded .sheet-expand .ic-collapse { display: block; }
 
     /* ── Swipeable image track ────────────────────────── */
     .sheet-viewport {
@@ -342,7 +389,23 @@
   <div class="sheet" id="sheet">
     <div class="sheet-header" id="sheetHeader">
       <span class="sheet-title" id="sheetTitle"></span>
-      <button class="sheet-close" id="sheetClose">&#215;</button>
+      <div class="sheet-actions">
+        <button class="sheet-expand" id="sheetExpand" aria-label="Expand to full screen">
+          <svg class="ic ic-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <polyline points="9 21 3 21 3 15"></polyline>
+            <line x1="21" y1="3" x2="14" y2="10"></line>
+            <line x1="3" y1="21" x2="10" y2="14"></line>
+          </svg>
+          <svg class="ic ic-collapse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="4 14 10 14 10 20"></polyline>
+            <polyline points="20 10 14 10 14 4"></polyline>
+            <line x1="14" y1="10" x2="21" y2="3"></line>
+            <line x1="3" y1="21" x2="10" y2="14"></line>
+          </svg>
+        </button>
+        <button class="sheet-close" id="sheetClose">&#215;</button>
+      </div>
     </div>
     <div class="sheet-viewport">
       <div class="sheet-track" id="sheetTrack"></div>
@@ -382,6 +445,7 @@
     const dotsEl    = document.getElementById('sheetDots');
     const titleEl   = document.getElementById('sheetTitle');
     const closeBtn  = document.getElementById('sheetClose');
+    const expandBtn = document.getElementById('sheetExpand');
     const headerEl  = document.getElementById('sheetHeader');
 
     let cur = { key: null, idx: 0, pages: [] };
@@ -392,6 +456,7 @@
       const menu = menus[key];
       cur = { key, idx: 0, pages: menu.pages };
       titleEl.textContent = menu.label;
+      collapseSheet();
 
       track.innerHTML = menu.pages.map((src, i) =>
         `<div class="sheet-slide"><img src="${src}" alt="Page ${i+1}" loading="${i === 0 ? 'eager' : 'lazy'}"></div>`
@@ -452,7 +517,18 @@
       });
     });
 
+    function collapseSheet() {
+      sheet.classList.remove('expanded');
+      expandBtn.setAttribute('aria-label', 'Expand to full screen');
+    }
+
+    function toggleExpand() {
+      const expanded = sheet.classList.toggle('expanded');
+      expandBtn.setAttribute('aria-label', expanded ? 'Exit full screen' : 'Expand to full screen');
+    }
+
     closeBtn.addEventListener('click', closeSheet);
+    expandBtn.addEventListener('click', toggleExpand);
     backdrop.addEventListener('click', closeSheet);
 
     // ── Swipe on viewport ─────────────────────────────────
