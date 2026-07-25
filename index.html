@@ -536,13 +536,36 @@
     let dragStart = null;
     let isDraggingSheet = false;
 
+    function isZoomed() {
+      return window.visualViewport && window.visualViewport.scale > 1.01;
+    }
+
+    function cancelSwipe() {
+      if (isDraggingSheet) {
+        track.classList.remove('dragging');
+        setSlide(cur.idx);
+      }
+      dragStart = null;
+      isDraggingSheet = false;
+    }
+
     function onPointerDown(e) {
+      // Let the browser own pinch-zoom and panning while zoomed
+      if ((e.touches && e.touches.length > 1) || isZoomed()) {
+        cancelSwipe();
+        return;
+      }
       const touch = e.touches ? e.touches[0] : e;
       dragStart = { x: touch.clientX, y: touch.clientY, t: Date.now() };
       isDraggingSheet = false;
     }
 
     function onPointerMove(e) {
+      // A second finger landed (pinch) or the page is zoomed — hand off to the browser
+      if ((e.touches && e.touches.length > 1) || isZoomed()) {
+        cancelSwipe();
+        return;
+      }
       if (!dragStart) return;
       const touch = e.touches ? e.touches[0] : e;
       const dx = touch.clientX - dragStart.x;
@@ -595,12 +618,20 @@
     // ── Drag sheet down to dismiss ─────────────────────────
     let sheetDrag = null;
 
+    function resetSheetDrag() {
+      sheet.style.transition = '';
+      sheet.style.transform = '';
+      sheetDrag = null;
+    }
+
     headerEl.addEventListener('touchstart', e => {
+      if (e.touches.length > 1 || isZoomed()) { sheetDrag = null; return; }
       sheetDrag = { y: e.touches[0].clientY, dismissed: false };
     }, { passive: true });
 
     headerEl.addEventListener('touchmove', e => {
       if (!sheetDrag) return;
+      if (e.touches.length > 1 || isZoomed()) { resetSheetDrag(); return; }
       const dy = e.touches[0].clientY - sheetDrag.y;
       if (dy > 0) {
         sheet.style.transition = 'none';
